@@ -1,15 +1,15 @@
 #!/usr/bin/env node
-// comment-check — Claude Code PreToolUse hook
+// why-check — Claude Code PreToolUse hook
 //
 // Blocks Edit/Write tool calls that contain no inline comment when
-// comment-mode flag is active. Exit 2 = block. Exit 0 = pass through.
+// why-mode flag is active. Exit 2 = block. Exit 0 = pass through.
 
-const { flagIsActive } = require('./comment-mode'); // WHY: reuse flag-reading logic from comment-mode.js rather than duplicating it; keeps the single-file flag contract in one place
+const { flagIsActive } = require('./why-mode'); // WHY: reuse flag-reading logic from why-mode.js rather than duplicating it; keeps the single-file flag contract in one place
 const path = require('path');
 const os = require('os');
 
-const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude'); // WHY: same env-var override as comment-mode.js so both scripts see the same flag under test
-const flagPath = path.join(claudeDir, '.comment-mode');
+const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude'); // WHY: same env-var override as why-mode.js so both scripts see the same flag under test
+const flagPath = path.join(claudeDir, '.why-mode');
 
 // WHY: language-agnostic token scan instead of a per-language AST parser because
 // no external deps are allowed and the bar is presence of *any* comment, not structural validity;
@@ -41,12 +41,12 @@ if (require.main === module) {
       if (hasCommentSyntax(content)) process.exit(0);
 
       process.stderr.write(
-        '[comment-mode] Edit blocked: no inline WHY comment found. ' +
+        '[why-mode] Edit blocked: no inline WHY comment found. ' +
         'Retry with a comment explaining why this change was made.\n'
       );
       process.exit(2); // WHY: exit 2 is the Claude Code PreToolUse convention for blocking a tool call
     } catch (e) {
-      process.exit(0); // WHY: fail open on any error (parse failure, fs error) so the hook never breaks non-comment-mode sessions
+      process.exit(0); // WHY: fail open on any error (parse failure, fs error) so the hook never breaks non-why-mode sessions
     }
   });
 }
