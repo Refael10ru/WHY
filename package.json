@@ -7,6 +7,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node tests/test_comment_mode.js"
+    "test": "node tests/test_comment_mode.js",
+    "test:all": "node tests/test_comment_mode.js && node tests/test_comment_check.js"
   }
 }
