@@ -1,6 +1,6 @@
 {
-  "name": "comment-mode",
-  "description": "Enforce inline WHY comments on all file edits. Toggle with /comment-mode on|off.",
+  "name": "why-mode",
+  "description": "Enforce inline WHY comments on all file edits. Toggle with /why-mode on|off.",
   "author": {
     "name": "refael"
   },
@@ -10,9 +10,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/src/comment-mode.js\" \"--session-start\"",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/src/why-mode.js\" \"--session-start\"",
             "timeout": 5,
-            "statusMessage": "Resetting comment mode..."
+            "statusMessage": "Resetting why mode..."
           }
         ]
       }
@@ -22,9 +22,9 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/src/comment-mode.js\"",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/src/why-mode.js\"",
             "timeout": 5,
-            "statusMessage": "Tracking comment mode..."
+            "statusMessage": "Tracking why mode..."
           }
         ]
       }
@@ -34,7 +34,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"${CLAUDE_PLUGIN_ROOT}/src/comment-check.js\"",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/src/why-check.js\"",
             "timeout": 5,
             "statusMessage": "Checking for WHY comment..."
           }

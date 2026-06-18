@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Tests for comment-check PreToolUse hook.
-// Run: node tests/test_comment_check.js
+// Tests for why-check PreToolUse hook.
+// Run: node tests/test_why_check.js
 
 const fs = require('fs');
 const path = require('path');
@@ -8,9 +8,9 @@ const os = require('os');
 const assert = require('assert');
 const { spawnSync } = require('child_process');
 
-const { hasCommentSyntax } = require('../src/comment-check');
+const { hasCommentSyntax } = require('../src/why-check');
 
-const hookScript = path.resolve(__dirname, '../src/comment-check.js');
+const hookScript = path.resolve(__dirname, '../src/why-check.js');
 
 let passed = 0;
 let failed = 0;
@@ -18,7 +18,7 @@ let failed = 0;
 function test(name, fn) {
   // WHY: each test gets its own tmp dir so flag-file state never bleeds between tests;
   // using mkdtemp instead of a shared dir prevents order-dependent failures.
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'comment-check-test-'));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'why-check-test-'));
   try {
     fn(tmp);
     passed++;
@@ -110,54 +110,54 @@ test('Write with no comment passes when flag absent', (tmp) => {
 console.log('\nHook integration — flag active\n');
 
 test('Edit with comment passes when flag active', (tmp) => {
-  fs.writeFileSync(path.join(tmp, '.comment-mode'), 'on');
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
   const result = runHook(editPayload('const x = 1; // why: default'), tmp);
   assert.strictEqual(result.status, 0);
   assert.strictEqual(result.stderr.trim(), '');
 });
 
 test('Edit with no comment blocks when flag active', (tmp) => {
-  fs.writeFileSync(path.join(tmp, '.comment-mode'), 'on');
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
   const result = runHook(editPayload('const x = 1;'), tmp);
   assert.strictEqual(result.status, 2);
-  assert.ok(result.stderr.includes('[comment-mode]'));
+  assert.ok(result.stderr.includes('[why-mode]'));
   assert.ok(result.stderr.includes('blocked'));
 });
 
 test('Write with comment passes when flag active', (tmp) => {
-  fs.writeFileSync(path.join(tmp, '.comment-mode'), 'on');
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
   const result = runHook(writePayload('x = 1  # why: default'), tmp);
   assert.strictEqual(result.status, 0);
 });
 
 test('Write with no comment blocks when flag active', (tmp) => {
-  fs.writeFileSync(path.join(tmp, '.comment-mode'), 'on');
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
   const result = runHook(writePayload('const x = 1;'), tmp);
   assert.strictEqual(result.status, 2);
-  assert.ok(result.stderr.includes('[comment-mode]'));
+  assert.ok(result.stderr.includes('[why-mode]'));
 });
 
 test('non-Edit/Write tool passes even with no comment and flag active', (tmp) => {
-  fs.writeFileSync(path.join(tmp, '.comment-mode'), 'on');
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
   const payload = JSON.stringify({ tool_name: 'Bash', tool_input: { command: 'ls' } });
   const result = runHook(payload, tmp);
   assert.strictEqual(result.status, 0);
 });
 
 test('empty new_string passes when flag active', (tmp) => {
-  fs.writeFileSync(path.join(tmp, '.comment-mode'), 'on');
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
   const result = runHook(editPayload(''), tmp);
   assert.strictEqual(result.status, 0);
 });
 
 test('whitespace-only content passes when flag active', (tmp) => {
-  fs.writeFileSync(path.join(tmp, '.comment-mode'), 'on');
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
   const result = runHook(editPayload('   \n  '), tmp);
   assert.strictEqual(result.status, 0);
 });
 
 test('invalid JSON input exits 0 (fail open)', (tmp) => {
-  fs.writeFileSync(path.join(tmp, '.comment-mode'), 'on');
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
   const result = runHook('not json', tmp);
   assert.strictEqual(result.status, 0);
 });
@@ -167,7 +167,7 @@ test('invalid JSON input exits 0 (fail open)', (tmp) => {
 console.log('\nError message\n');
 
 test('block message tells Claude to retry with WHY comment', (tmp) => {
-  fs.writeFileSync(path.join(tmp, '.comment-mode'), 'on');
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
   const result = runHook(editPayload('const x = 1;'), tmp);
   assert.ok(result.stderr.includes('Retry'));
   assert.ok(result.stderr.toLowerCase().includes('comment'));

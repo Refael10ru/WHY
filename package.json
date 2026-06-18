@@ -1,5 +1,5 @@
 {
-  "name": "comment-mode",
+  "name": "why-mode",
   "version": "1.0.0",
   "description": "Claude Code hook: enforce inline WHY comments on all file edits",
   "license": "MIT",
@@ -7,7 +7,7 @@
     "node": ">=18"
   },
   "scripts": {
-    "test": "node tests/test_comment_mode.js",
-    "test:all": "node tests/test_comment_mode.js && node tests/test_comment_check.js"
+    "test": "node tests/test_why_mode.js",
+    "test:all": "node tests/test_why_mode.js && node tests/test_why_check.js"
   }
 }

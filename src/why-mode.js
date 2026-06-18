@@ -1,18 +1,18 @@
 #!/usr/bin/env node
-// comment-mode — Claude Code hook (SessionStart + UserPromptSubmit)
+// why-mode — Claude Code hook (SessionStart + UserPromptSubmit)
 //
 // SessionStart (--session-start): unlinks flag so mode doesn't carry across sessions
-// UserPromptSubmit: detects /comment-mode on|off, writes/unlinks flag, injects instruction
+// UserPromptSubmit: detects /why-mode on|off, writes/unlinks flag, injects instruction
 
 const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
 const claudeDir = process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), '.claude');
-const flagPath = path.join(claudeDir, '.comment-mode');
+const flagPath = path.join(claudeDir, '.why-mode');
 
 const ADDITIONAL_CONTEXT =
-  'COMMENT MODE ACTIVE. For every file edit, add an inline code comment on the changed lines ' +
+  'WHY MODE ACTIVE. For every file edit, add an inline code comment on the changed lines ' +
   'explaining: (1) WHY this change was made, (2) how it helps, and (3) if a radically different ' +
   'approach exists, why that approach was not taken instead. Use language-appropriate comment syntax.';
 
@@ -50,7 +50,7 @@ function safeCreateFlag(fp) {
       if (e.code !== 'ENOENT') return;
     }
 
-    const tempPath = path.join(realFlagDir, `.comment-mode.${process.pid}.${Date.now()}`);
+    const tempPath = path.join(realFlagDir, `.why-mode.${process.pid}.${Date.now()}`);
     const O_NOFOLLOW = typeof fs.constants.O_NOFOLLOW === 'number' ? fs.constants.O_NOFOLLOW : 0;
     const openFlags = fs.constants.O_WRONLY | fs.constants.O_CREAT | fs.constants.O_EXCL | O_NOFOLLOW;
     let fd;
@@ -91,9 +91,9 @@ if (require.main === module) {
       const data = JSON.parse(input);
       const prompt = (data.prompt || '').trim();
 
-      if (/^\/comment-mode(?::[^\s]*)?\s+on\b/i.test(prompt)) {
+      if (/^\/why-mode(?::[^\s]*)?\s+on\b/i.test(prompt)) {
         safeCreateFlag(flagPath);
-      } else if (/^\/comment-mode(?::[^\s]*)?\s+off\b/i.test(prompt)) {
+      } else if (/^\/why-mode(?::[^\s]*)?\s+off\b/i.test(prompt)) {
         safeUnlinkFlag(flagPath);
       }
 

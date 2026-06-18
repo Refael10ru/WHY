@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Tests for comment-mode hook.
-// Run: node tests/test_comment_mode.js
+// Tests for why-mode hook.
+// Run: node tests/test_why_mode.js
 
 const fs = require('fs');
 const path = require('path');
@@ -9,15 +9,15 @@ const assert = require('assert');
 const { spawnSync } = require('child_process');
 
 const { safeCreateFlag, flagIsActive, safeUnlinkFlag, ADDITIONAL_CONTEXT } =
-  require('../src/comment-mode');
+  require('../src/why-mode');
 
-const hookScript = path.resolve(__dirname, '../src/comment-mode.js');
+const hookScript = path.resolve(__dirname, '../src/why-mode.js');
 
 let passed = 0;
 let failed = 0;
 
 function test(name, fn) {
-  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'comment-mode-test-'));
+  const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'why-mode-test-'));
   try {
     fn(tmp);
     passed++;
@@ -48,14 +48,14 @@ function promptInput(prompt) {
 console.log('\nsafeCreateFlag\n');
 
 test('creates flag in normal directory', (tmp) => {
-  const fp = path.join(tmp, '.comment-mode');
+  const fp = path.join(tmp, '.why-mode');
   safeCreateFlag(fp);
   assert.ok(fs.existsSync(fp));
   assert.ok(fs.lstatSync(fp).isFile());
 });
 
 test('creates parent directory if missing', (tmp) => {
-  const fp = path.join(tmp, 'nested', 'dir', '.comment-mode');
+  const fp = path.join(tmp, 'nested', 'dir', '.why-mode');
   safeCreateFlag(fp);
   assert.ok(fs.existsSync(fp));
 });
@@ -65,14 +65,14 @@ test('creates flag through symlinked parent owned by current user', (tmp) => {
   fs.mkdirSync(realDir);
   const linkDir = path.join(tmp, 'link');
   fs.symlinkSync(realDir, linkDir);
-  safeCreateFlag(path.join(linkDir, '.comment-mode'));
-  assert.ok(fs.existsSync(path.join(realDir, '.comment-mode')));
+  safeCreateFlag(path.join(linkDir, '.why-mode'));
+  assert.ok(fs.existsSync(path.join(realDir, '.why-mode')));
 });
 
 test('refuses when flag file is itself a symlink', (tmp) => {
   const decoy = path.join(tmp, 'decoy.txt');
   fs.writeFileSync(decoy, 'ATTACK');
-  const fp = path.join(tmp, '.comment-mode');
+  const fp = path.join(tmp, '.why-mode');
   fs.symlinkSync(decoy, fp);
   safeCreateFlag(fp);
   assert.strictEqual(fs.readFileSync(decoy, 'utf8'), 'ATTACK');
@@ -80,7 +80,7 @@ test('refuses when flag file is itself a symlink', (tmp) => {
 
 test('flag file permissions are 0600', (tmp) => {
   if (process.platform === 'win32') return;
-  const fp = path.join(tmp, '.comment-mode');
+  const fp = path.join(tmp, '.why-mode');
   safeCreateFlag(fp);
   const mode = fs.statSync(fp).mode & 0o777;
   assert.strictEqual(mode, 0o600, `expected 0600, got 0${mode.toString(8)}`);
@@ -91,11 +91,11 @@ test('flag file permissions are 0600', (tmp) => {
 console.log('\nflagIsActive\n');
 
 test('returns false when file missing', (tmp) => {
-  assert.strictEqual(flagIsActive(path.join(tmp, '.comment-mode')), false);
+  assert.strictEqual(flagIsActive(path.join(tmp, '.why-mode')), false);
 });
 
 test('returns true when regular file exists', (tmp) => {
-  const fp = path.join(tmp, '.comment-mode');
+  const fp = path.join(tmp, '.why-mode');
   fs.writeFileSync(fp, 'on');
   assert.strictEqual(flagIsActive(fp), true);
 });
@@ -103,7 +103,7 @@ test('returns true when regular file exists', (tmp) => {
 test('returns false when path is a symlink', (tmp) => {
   const target = path.join(tmp, 'target.txt');
   fs.writeFileSync(target, 'on');
-  const fp = path.join(tmp, '.comment-mode');
+  const fp = path.join(tmp, '.why-mode');
   fs.symlinkSync(target, fp);
   assert.strictEqual(flagIsActive(fp), false);
 });
@@ -113,55 +113,55 @@ test('returns false when path is a symlink', (tmp) => {
 console.log('\nsafeUnlinkFlag\n');
 
 test('removes existing flag', (tmp) => {
-  const fp = path.join(tmp, '.comment-mode');
+  const fp = path.join(tmp, '.why-mode');
   fs.writeFileSync(fp, 'on');
   safeUnlinkFlag(fp);
   assert.strictEqual(fs.existsSync(fp), false);
 });
 
 test('no-ops when file missing', (tmp) => {
-  assert.doesNotThrow(() => safeUnlinkFlag(path.join(tmp, '.comment-mode')));
+  assert.doesNotThrow(() => safeUnlinkFlag(path.join(tmp, '.why-mode')));
 });
 
 // --- Hook integration ---
 
 console.log('\nHook integration\n');
 
-test('/comment-mode on creates flag and emits additionalContext', (tmp) => {
-  const result = runHook([], promptInput('/comment-mode on'), tmp);
+test('/why-mode on creates flag and emits additionalContext', (tmp) => {
+  const result = runHook([], promptInput('/why-mode on'), tmp);
   assert.strictEqual(result.status, 0);
-  assert.ok(fs.existsSync(path.join(tmp, '.comment-mode')));
+  assert.ok(fs.existsSync(path.join(tmp, '.why-mode')));
   const out = JSON.parse(result.stdout);
-  assert.ok(out.hookSpecificOutput.additionalContext.includes('COMMENT MODE ACTIVE'));
+  assert.ok(out.hookSpecificOutput.additionalContext.includes('WHY MODE ACTIVE'));
 });
 
-test('/comment-mode:comment-mode on (namespaced) creates flag', (tmp) => {
-  const result = runHook([], promptInput('/comment-mode:comment-mode on'), tmp);
+test('/why-mode:why-mode on (namespaced) creates flag', (tmp) => {
+  const result = runHook([], promptInput('/why-mode:why-mode on'), tmp);
   assert.strictEqual(result.status, 0);
-  assert.ok(fs.existsSync(path.join(tmp, '.comment-mode')));
+  assert.ok(fs.existsSync(path.join(tmp, '.why-mode')));
 });
 
-test('/comment-mode off removes flag and emits nothing', (tmp) => {
-  fs.writeFileSync(path.join(tmp, '.comment-mode'), 'on');
-  const result = runHook([], promptInput('/comment-mode off'), tmp);
+test('/why-mode off removes flag and emits nothing', (tmp) => {
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
+  const result = runHook([], promptInput('/why-mode off'), tmp);
   assert.strictEqual(result.status, 0);
-  assert.strictEqual(fs.existsSync(path.join(tmp, '.comment-mode')), false);
+  assert.strictEqual(fs.existsSync(path.join(tmp, '.why-mode')), false);
   assert.strictEqual(result.stdout.trim(), '');
 });
 
-test('/comment-mode:comment-mode off (namespaced) removes flag', (tmp) => {
-  fs.writeFileSync(path.join(tmp, '.comment-mode'), 'on');
-  const result = runHook([], promptInput('/comment-mode:comment-mode off'), tmp);
+test('/why-mode:why-mode off (namespaced) removes flag', (tmp) => {
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
+  const result = runHook([], promptInput('/why-mode:why-mode off'), tmp);
   assert.strictEqual(result.status, 0);
-  assert.strictEqual(fs.existsSync(path.join(tmp, '.comment-mode')), false);
+  assert.strictEqual(fs.existsSync(path.join(tmp, '.why-mode')), false);
 });
 
 test('unrelated prompt with active flag emits additionalContext', (tmp) => {
-  fs.writeFileSync(path.join(tmp, '.comment-mode'), 'on');
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
   const result = runHook([], promptInput('fix the bug'), tmp);
   assert.strictEqual(result.status, 0);
   const out = JSON.parse(result.stdout);
-  assert.ok(out.hookSpecificOutput.additionalContext.includes('COMMENT MODE ACTIVE'));
+  assert.ok(out.hookSpecificOutput.additionalContext.includes('WHY MODE ACTIVE'));
 });
 
 test('unrelated prompt with no flag emits nothing', (tmp) => {
@@ -171,10 +171,10 @@ test('unrelated prompt with no flag emits nothing', (tmp) => {
 });
 
 test('--session-start clears flag', (tmp) => {
-  fs.writeFileSync(path.join(tmp, '.comment-mode'), 'on');
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
   const result = runHook(['--session-start'], '', tmp);
   assert.strictEqual(result.status, 0);
-  assert.strictEqual(fs.existsSync(path.join(tmp, '.comment-mode')), false);
+  assert.strictEqual(fs.existsSync(path.join(tmp, '.why-mode')), false);
 });
 
 test('--session-start no-ops when flag absent', (tmp) => {
