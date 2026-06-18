@@ -1,0 +1,33 @@
+{
+  "name": "comment-mode",
+  "description": "Enforce inline WHY comments on all file edits. Toggle with /comment-mode on|off.",
+  "author": {
+    "name": "refael"
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/src/comment-mode.js\" \"--session-start\"",
+            "timeout": 5,
+            "statusMessage": "Resetting comment mode..."
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/src/comment-mode.js\"",
+            "timeout": 5,
+            "statusMessage": "Tracking comment mode..."
+          }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "name": "comment-mode",
+  "version": "1.0.0",
+  "description": "Claude Code hook: enforce inline WHY comments on all file edits",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "test": "node tests/test_comment_mode.js"
+  }
+}

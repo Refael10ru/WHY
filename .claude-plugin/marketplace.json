@@ -1,0 +1,16 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "comment-mode",
+  "description": "Enforce inline WHY comments on all Claude Code file edits.",
+  "owner": {
+    "name": "refael"
+  },
+  "plugins": [
+    {
+      "name": "comment-mode",
+      "description": "Toggle /comment-mode on|off. When on, every file edit gets an inline WHY comment.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}
