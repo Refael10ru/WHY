@@ -28,6 +28,18 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/src/comment-check.js\"",
+            "timeout": 5,
+            "statusMessage": "Checking for WHY comment..."
+          }
+        ]
+      }
     ]
   }
 }
