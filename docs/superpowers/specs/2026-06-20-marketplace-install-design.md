@@ -10,8 +10,9 @@ Make the why-mode plugin installable via `claude plugin install https://github.c
 ## Deliverables
 
 1. **`README.md`** — project root, full user-facing docs
-2. **`.claude-plugin/plugin.json`** — verify against Claude Code plugin spec, add any missing fields
+2. **`.claude-plugin/plugin.json`** — verify against Claude Code plugin spec, add `statusLine` field
 3. **`.claude-plugin/marketplace.json`** — verify `$schema`, all required fields present
+4. **`tests/test_manifest.js`** — manifest validation + hook smoke tests
 
 ## README Structure
 
@@ -87,6 +88,35 @@ Already has:
 - `plugins[]` with `name`, `description`, `source: "./"`, `category`
 
 The `source: "./"` value means the plugin root is the repo root — this is correct when `.claude-plugin/` is at the repo root. No change needed.
+
+## Test Plan: `tests/test_manifest.js`
+
+Same homegrown runner as existing test files. Three suites:
+
+### 1. Manifest structure
+
+- `plugin.json` is valid JSON
+- `plugin.json` has `name`, `description`, `author`, `hooks`, `statusLine`
+- `hooks.SessionStart`, `hooks.UserPromptSubmit`, `hooks.PreToolUse` each present and non-empty
+- `statusLine` has `type` and `command`
+- `marketplace.json` is valid JSON
+- `marketplace.json` has `$schema`, `name`, `description`, `owner`, `plugins`
+- `plugins[0]` has `name`, `description`, `source`, `category`
+
+### 2. Referenced script existence
+
+For every `command` value in `plugin.json` hooks and `statusLine`:
+- Extract the script path (strip `node`/`bash` prefix and `${CLAUDE_PLUGIN_ROOT}` → repo root)
+- Assert the file exists on disk
+
+### 3. Statusline script input/output
+
+Run `src/why-mode-statusline.sh` via `spawnSync`:
+- Flag absent → exit 0, stdout empty
+- Flag present (regular file) → exit 0, stdout contains `[WHY]`
+- Flag is a symlink → exit 0, stdout empty (symlink refused)
+
+`package.json` `test:all` script updated to include `test_manifest.js`.
 
 ## Non-Goals
 
