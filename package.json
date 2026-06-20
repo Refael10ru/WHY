@@ -8,6 +8,6 @@
   },
   "scripts": {
     "test": "node tests/test_why_mode.js",
-    "test:all": "node tests/test_why_mode.js && node tests/test_why_check.js"
+    "test:all": "node tests/test_why_mode.js && node tests/test_why_check.js && node tests/test_manifest.js"
   }
 }

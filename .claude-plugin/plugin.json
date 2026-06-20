@@ -4,6 +4,10 @@
   "author": {
     "name": "refael"
   },
+  "statusLine": {
+    "type": "command",
+    "command": "bash \"${CLAUDE_PLUGIN_ROOT}/src/why-mode-statusline.sh\""
+  },
   "hooks": {
     "SessionStart": [
       {
