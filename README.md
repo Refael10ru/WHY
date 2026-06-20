@@ -10,7 +10,7 @@ A Claude Code plugin that enforces inline **WHY** comments on every file edit â€
 ## Install
 
 ```
-claude plugin install https://github.com/Refael10ru/WHY
+npx github:Refael10ru/WHY
 ```
 
 ## What it does
