@@ -18,6 +18,6 @@
   },
   "scripts": {
     "test": "node tests/test_why_mode.js",
-    "test:all": "node tests/test_why_mode.js && node tests/test_why_check.js && node tests/test_manifest.js"
+    "test:all": "node tests/test_why_mode.js && node tests/test_why_check.js && node tests/test_manifest.js && node tests/test_statusline.js"
   }
 }
