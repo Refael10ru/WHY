@@ -58,8 +58,7 @@ Fails open (exit 0) on any error so it never breaks sessions when mode is off.
 
 ## Statusline badge
 
-Optional section: how to configure [WHY] statusline badge in settings.json
-using the included `src/statusline.sh`.
+The `[WHY]` badge is configured automatically on install — no manual setup needed.
 ```
 
 ## Manifest Audit
@@ -69,6 +68,15 @@ using the included `src/statusline.sh`.
 Already has correct structure:
 - `name`, `description`, `author`
 - All three hook entries (`SessionStart`, `UserPromptSubmit`, `PreToolUse`) with `command`, `timeout`, `statusMessage`
+
+**Add `statusLine` field** so the badge auto-configures on install:
+
+```json
+"statusLine": {
+  "type": "command",
+  "command": "bash \"${CLAUDE_PLUGIN_ROOT}/src/why-mode-statusline.sh\""
+}
+```
 
 Check: does the Claude Code plugin spec require a `version` field? Add `"version": "1.0.0"` if so.
 
