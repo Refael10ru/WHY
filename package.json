@@ -4,6 +4,7 @@
   "description": "Claude Code hook: enforce inline WHY comments on all file edits",
   "license": "MIT",
   "bin": {
+    "WHY": "./bin/install.js",
     "why-mode": "./bin/install.js"
   },
   "files": [

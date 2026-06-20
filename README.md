@@ -13,12 +13,6 @@ A Claude Code plugin that enforces inline **WHY** comments on every file edit â€
 npx github:Refael10ru/WHY
 ```
 
-Or with curl:
-
-```
-curl -fsSL https://raw.githubusercontent.com/Refael10ru/WHY/main/install.sh | bash
-```
-
 ## What it does
 
 When active, why-mode enforces that every file edit includes an inline code comment explaining:
