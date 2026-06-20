@@ -10,10 +10,14 @@ A Claude Code plugin that enforces inline **WHY** comments on every file edit â€
 ## Install
 
 ```
-claude plugin install https://github.com/Refael10ru/WHY
+npx github:Refael10ru/WHY
 ```
 
-The `[WHY]` statusline badge is configured automatically.
+Or with curl:
+
+```
+curl -fsSL https://raw.githubusercontent.com/Refael10ru/WHY/main/install.sh | bash
+```
 
 ## What it does
 

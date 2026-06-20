@@ -3,6 +3,16 @@
   "version": "1.0.0",
   "description": "Claude Code hook: enforce inline WHY comments on all file edits",
   "license": "MIT",
+  "bin": {
+    "why-mode": "./bin/install.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "commands/",
+    ".claude-plugin/",
+    "README.md"
+  ],
   "engines": {
     "node": ">=18"
   },
