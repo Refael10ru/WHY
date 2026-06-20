@@ -162,6 +162,35 @@ test('invalid JSON input exits 0 (fail open)', (tmp) => {
   assert.strictEqual(result.status, 0);
 });
 
+// --- Comment-exempt file types ---
+
+console.log('\nComment-exempt file types\n');
+
+test('Edit .json file passes without comment when flag active', (tmp) => {
+  // WHY: JSON has no comment syntax; blocking edits to .json files is a false positive
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
+  const result = runHook(editPayload('{"name": "foo"}', 'package.json'), tmp);
+  assert.strictEqual(result.status, 0, `expected pass but got exit ${result.status}: ${result.stderr}`);
+});
+
+test('Write .json file passes without comment when flag active', (tmp) => {
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
+  const result = runHook(writePayload('{"version": "1.0.0"}', 'tsconfig.json'), tmp);
+  assert.strictEqual(result.status, 0, `expected pass but got exit ${result.status}: ${result.stderr}`);
+});
+
+test('Edit .lock file passes without comment when flag active', (tmp) => {
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
+  const result = runHook(editPayload('some lock content', 'package-lock.json'), tmp);
+  assert.strictEqual(result.status, 0, `expected pass but got exit ${result.status}: ${result.stderr}`);
+});
+
+test('Edit .js file still requires comment when flag active', (tmp) => {
+  fs.writeFileSync(path.join(tmp, '.why-mode'), 'on');
+  const result = runHook(editPayload('const x = 1;', 'src/index.js'), tmp);
+  assert.strictEqual(result.status, 2, 'expected block on .js file with no comment');
+});
+
 // --- Error message quality ---
 
 console.log('\nError message\n');
