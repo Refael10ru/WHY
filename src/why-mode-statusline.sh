@@ -9,4 +9,7 @@ FLAG="${CLAUDE_CONFIG_DIR:-$HOME/.claude}/.why-mode"
 [ -L "$FLAG" ] && exit 0
 [ ! -f "$FLAG" ] && exit 0
 
-printf '\033[38;5;35m[WHY]\033[0m'
+# WHY: leading space separates [WHY] from preceding badges (e.g. [CAVEMAN])
+# when Claude Code concatenates multiple statusLine outputs.
+# Alternative (hardcoding caveman check) rejected — stays generic.
+printf ' \033[38;5;35m[WHY]\033[0m'
