@@ -13,8 +13,6 @@ A Claude Code plugin that enforces inline **WHY** comments on every file edit â€
 claude plugin install https://github.com/Refael10ru/WHY
 ```
 
-The `[WHY]` statusline badge is configured automatically.
-
 ## What it does
 
 When active, why-mode enforces that every file edit includes an inline code comment explaining:
