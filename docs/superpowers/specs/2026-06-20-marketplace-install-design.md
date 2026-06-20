@@ -22,7 +22,7 @@ One-line description of what the plugin does.
 
 ## Requirements
 
-- Claude Code (latest)
+- Claude Code (any version supporting `claude plugin install`)
 - Node.js ≥18
 
 ## Install
@@ -78,7 +78,7 @@ Already has:
 - `$schema`, `name`, `description`, `owner`
 - `plugins[]` with `name`, `description`, `source: "./"`, `category`
 
-The `source: "./"` value means the plugin root is the repo root — verify this is the correct value for a repo where `.claude-plugin/` is at root level (not nested).
+The `source: "./"` value means the plugin root is the repo root — this is correct when `.claude-plugin/` is at the repo root. No change needed.
 
 ## Non-Goals
 
