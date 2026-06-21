@@ -81,6 +81,38 @@ function safeUnlinkFlag(fp) {
 if (require.main === module) {
   if (process.argv.includes('--session-start')) {
     safeUnlinkFlag(flagPath);
+
+    // WHY: plugin.json statusLine key is not read by Claude Code — only settings.json
+    // is checked. Auto-patching here handles both npx installs and plugin-marketplace
+    // installs without requiring a manual step. Alternative (bin/install.js only)
+    // rejected because marketplace installs don't run bin/install.js.
+    try {
+      const settingsPath = path.join(claudeDir, 'settings.json');
+      // WHY: CLAUDE_PLUGIN_ROOT is set by the harness for all plugin hooks; fall back
+      // to the standard marketplace install path so tests can also call this path safely.
+      const pluginRoot = process.env.CLAUDE_PLUGIN_ROOT ||
+        path.join(claudeDir, 'plugins', 'marketplaces', 'why-mode');
+      const scriptPath = path.join(pluginRoot, 'src', 'why-mode-statusline.sh');
+
+      let settings = {};
+      try { settings = JSON.parse(fs.readFileSync(settingsPath, 'utf8')); } catch (e) {}
+
+      const existing = (settings.statusLine && settings.statusLine.command) || '';
+      if (!existing.includes('why-mode-statusline')) {
+        // WHY: chain after any existing statusLine (e.g. caveman) so other badges
+        // survive. bash -c '...existing...; ...' is safe because existing commands
+        // use double quotes internally and won't contain unescaped single quotes.
+        // Writing a wrapper script was rejected — adds a managed file with no benefit.
+        settings.statusLine = existing
+          ? { type: 'command', command: `bash -c '${existing}; bash "${scriptPath}"'` }
+          : { type: 'command', command: `bash "${scriptPath}"` };
+        fs.writeFileSync(settingsPath, JSON.stringify(settings, null, 2) + '\n');
+        process.stdout.write(
+          'WHY statusline auto-configured. Run /reload-plugins (or restart Claude Code) to see the [WHY] badge.'
+        );
+      }
+    } catch (e) {} // WHY: silent fail — statusline is cosmetic; don't block session start
+
     process.exit(0);
   }
 

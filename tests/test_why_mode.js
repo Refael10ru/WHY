@@ -182,6 +182,65 @@ test('--session-start no-ops when flag absent', (tmp) => {
   assert.strictEqual(result.status, 0);
 });
 
+// --- SessionStart statusLine auto-configure ---
+
+console.log('\nSessionStart statusLine auto-configure\n');
+
+function runSessionStart(claudeConfigDir, pluginRoot, extraEnv = {}) {
+  return spawnSync(process.execPath, [hookScript, '--session-start'], {
+    input: '',
+    encoding: 'utf8',
+    env: { ...process.env, CLAUDE_CONFIG_DIR: claudeConfigDir, CLAUDE_PLUGIN_ROOT: pluginRoot, ...extraEnv }
+  });
+}
+
+test('--session-start writes statusLine to settings.json when absent', (tmp) => {
+  // WHY: root issue — plugin.json statusLine ignored by Claude Code; only settings.json is read.
+  // This test fails before the fix (no statusLine written) and passes after.
+  const fakePlugin = path.join(tmp, 'plugin');
+  fs.mkdirSync(path.join(fakePlugin, 'src'), { recursive: true });
+  fs.writeFileSync(path.join(fakePlugin, 'src', 'why-mode-statusline.sh'), '#!/bin/bash\necho [WHY]');
+
+  const result = runSessionStart(tmp, fakePlugin);
+  assert.strictEqual(result.status, 0);
+
+  const settings = JSON.parse(fs.readFileSync(path.join(tmp, 'settings.json'), 'utf8'));
+  assert.ok(settings.statusLine, 'statusLine should be written to settings.json');
+  assert.ok(settings.statusLine.command.includes('why-mode-statusline'), 'command should reference why-mode-statusline.sh');
+});
+
+test('--session-start chains WHY after existing statusLine', (tmp) => {
+  const fakePlugin = path.join(tmp, 'plugin');
+  fs.mkdirSync(path.join(fakePlugin, 'src'), { recursive: true });
+  fs.writeFileSync(path.join(fakePlugin, 'src', 'why-mode-statusline.sh'), '#!/bin/bash');
+
+  fs.writeFileSync(path.join(tmp, 'settings.json'), JSON.stringify({
+    statusLine: { type: 'command', command: 'bash "/path/to/caveman-statusline.sh"' }
+  }, null, 2));
+
+  runSessionStart(tmp, fakePlugin);
+
+  const settings = JSON.parse(fs.readFileSync(path.join(tmp, 'settings.json'), 'utf8'));
+  assert.ok(settings.statusLine.command.includes('caveman-statusline.sh'), 'should preserve existing command');
+  assert.ok(settings.statusLine.command.includes('why-mode-statusline'), 'should add WHY script');
+});
+
+test('--session-start is idempotent when WHY already in statusLine', (tmp) => {
+  const fakePlugin = path.join(tmp, 'plugin');
+  fs.mkdirSync(path.join(fakePlugin, 'src'), { recursive: true });
+  fs.writeFileSync(path.join(fakePlugin, 'src', 'why-mode-statusline.sh'), '#!/bin/bash');
+
+  const originalCmd = `bash -c 'bash "/caveman.sh"; bash "${fakePlugin}/src/why-mode-statusline.sh"'`;
+  fs.writeFileSync(path.join(tmp, 'settings.json'), JSON.stringify({
+    statusLine: { type: 'command', command: originalCmd }
+  }, null, 2));
+
+  runSessionStart(tmp, fakePlugin);
+
+  const settings = JSON.parse(fs.readFileSync(path.join(tmp, 'settings.json'), 'utf8'));
+  assert.strictEqual(settings.statusLine.command, originalCmd, 'should not modify already-configured statusLine');
+});
+
 test('additionalContext contains all required elements', (tmp) => {
   assert.ok(ADDITIONAL_CONTEXT.includes('WHY'));
   assert.ok(ADDITIONAL_CONTEXT.includes('how it helps'));
