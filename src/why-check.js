@@ -16,8 +16,17 @@ const flagPath = path.join(claudeDir, '.why-mode');
 // AST-based validation is tracked as a future TODO in the spec.
 const COMMENT_TOKENS = ['//', '#', '/*', '--', '<!--'];
 
+// WHY: JSON and similar formats have no comment syntax at all; blocking edits to these
+// files is a false positive — the spec requires comments where the language supports them.
+const COMMENT_EXEMPT_EXTENSIONS = new Set(['.json', '.jsonl', '.lock']);
+
 function hasCommentSyntax(content) {
   return COMMENT_TOKENS.some(token => content.includes(token));
+}
+
+function isCommentExempt(filePath) {
+  const ext = path.extname(filePath || '').toLowerCase();
+  return COMMENT_EXEMPT_EXTENSIONS.has(ext);
 }
 
 if (require.main === module) {
@@ -33,6 +42,9 @@ if (require.main === module) {
       if (toolName !== 'Edit' && toolName !== 'Write') process.exit(0); // WHY: only file-mutation tools need comment enforcement; Bash/Read/etc. are irrelevant
 
       const ti = data.tool_input || {};
+      // WHY: Claude Code uses file_path for both Edit and Write; fall back to path for test compat
+      const filePath = ti.file_path || ti.path || '';
+      if (isCommentExempt(filePath)) process.exit(0); // WHY: JSON/lock files have no comment syntax; enforcing WHY comments would be impossible
       // WHY: Edit carries new_string (the replacement text), Write carries content (the full file body)
       const content = toolName === 'Edit' ? (ti.new_string || '') : (ti.content || '');
 
