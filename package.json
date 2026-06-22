@@ -18,6 +18,11 @@
   },
   "scripts": {
     "test": "node tests/test_why_mode.js",
-    "test:all": "node tests/test_why_mode.js && node tests/test_why_check.js && node tests/test_manifest.js && node tests/test_statusline.js"
+    "test:all": "node tests/test_why_mode.js && node tests/test_why_check.js && node tests/test_manifest.js && node tests/test_statusline.js",
+    "lint": "biome check src/ bin/ tests/",
+    "lint:fix": "biome check --write --unsafe src/ bin/ tests/"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^2.5.0"
   }
 }
