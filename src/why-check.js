@@ -12,8 +12,11 @@ const claudeDir =
 	process.env.CLAUDE_CONFIG_DIR || path.join(os.homedir(), ".claude"); // WHY: same env-var override as why-mode.js so both scripts see the same flag under test
 const flagPath = path.join(claudeDir, ".why-mode");
 
-// WHY: language-agnostic token scan — no external deps, bar is presence of any comment token
-const COMMENT_TOKENS = ["//", "#", "/*", "--", "<!--"];
+// WHY: language-agnostic token scan — no external deps, bar is presence of any comment token.
+// """ added for Python triple-quoted docstrings; omitting it would block all Python edits
+// where docstrings are the idiomatic multi-line comment form. Alternative (requiring # on
+// same line) rejected — docstrings are what Claude naturally produces for Python WHY explanations.
+const COMMENT_TOKENS = ["//", "#", "/*", "--", "<!--", '"""'];
 
 // WHY: JSON and similar formats have no comment syntax; blocking edits is a false positive
 const COMMENT_EXEMPT_EXTENSIONS = new Set([".json", ".jsonl", ".lock"]);

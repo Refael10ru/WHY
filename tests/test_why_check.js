@@ -78,6 +78,10 @@ test("detects <!-- comment", () => {
 	assert.ok(hasCommentSyntax("<!-- why: sets default --><div>"));
 });
 
+test('detects """ Python docstring', () => {
+	assert.ok(hasCommentSyntax('def foo():\n    """WHY: returns default value."""\n    return 1'));
+});
+
 test("returns false when no comment syntax", () => {
 	assert.strictEqual(hasCommentSyntax("const x = 1;"), false);
 });
